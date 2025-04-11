@@ -1,7 +1,7 @@
 import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-
+// v1/product
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableVersioning({

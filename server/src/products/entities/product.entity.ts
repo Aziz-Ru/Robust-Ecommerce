@@ -1,3 +1,4 @@
+import { Category } from 'src/category/entities/category.entity';
 import {
   Column,
   Entity,
@@ -6,7 +7,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Category } from './category.entity';
 import { ProductImage } from './image.entity';
 import { Review } from './review.entity';
 import { ProductSize } from './size.entity';
@@ -26,16 +26,16 @@ export class Product {
   @Column({ type: 'decimal', precision: 5, scale: 2 })
   price: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   discount: number;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   costPrice: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 1 })
   stock: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 10 })
   stockThreshold: number;
 
   @Column({ type: 'varchar', length: 255 })
@@ -47,7 +47,7 @@ export class Product {
   @Column({ type: 'int' })
   totalSold: number;
 
-  @Column({ type: 'decimal', precision: 2, scale: 2 })
+  @Column({ type: 'decimal', precision: 2, scale: 2, default: 0 })
   rating: number;
 
   @OneToMany(() => ProductSize, (size) => size.product)

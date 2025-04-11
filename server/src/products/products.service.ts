@@ -9,17 +9,22 @@ import { Product } from './entities/product.entity';
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private productRepository: Repository<Product>,
+    private productRepo: Repository<Product>,
   ) {}
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  async create(createProductDto: CreateProductDto) {
+    // this.productRepo.create(createProductDto);
+    return { msg: 'Product Create Successfully' };
   }
 
   findAll() {
-    return `This action returns all products`;
+    return this.productRepo.find({
+      where: {
+        price: 200,
+      },
+    });
   }
   findProductForCustomer() {
-    return this.productRepository.find();
+    return this.productRepo.find();
   }
 
   findOne(id: number) {

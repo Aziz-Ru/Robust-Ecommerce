@@ -9,6 +9,6 @@ export class ProductImage {
   url: string;
   @Column({ type: 'boolean', default: false })
   isPrimary: boolean;
-  @ManyToOne(() => Product, (product) => product.images)
+  @ManyToOne(() => Product, (product) => product.images, { cascade: true })
   productId: string;
 }
