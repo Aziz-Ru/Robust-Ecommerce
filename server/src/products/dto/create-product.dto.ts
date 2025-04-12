@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsPositive,
   IsUrl,
+  IsUUID,
   Length,
 } from 'class-validator';
 import { Size } from '../size-enum';
@@ -18,27 +19,22 @@ export class CreateProductDto {
   @IsNotEmpty()
   description: string;
 
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   price: number;
 
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   discount: number;
 
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   costPrice: number;
 
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   stockThreshold: number;
 
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   stock: number;
@@ -52,4 +48,9 @@ export class CreateProductDto {
   @ArrayNotEmpty()
   @IsUrl({}, { each: true })
   images: string[];
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsUUID('4', { each: true })
+  category: string[];
 }

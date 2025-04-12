@@ -1,7 +1,16 @@
 import { Product } from 'src/products/entities/product.entity';
-import { Column, Entity, Index, ManyToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  PrimaryColumn,
+  Unique,
+} from 'typeorm';
 
 @Entity()
+@Unique(['slug'])
 export class Category {
   @PrimaryColumn({ type: 'varchar', length: 255 })
   @Index()
@@ -10,5 +19,6 @@ export class Category {
   name: string;
 
   @ManyToMany(() => Product, (product) => product.category)
+  @JoinTable()
   products: Product[];
 }

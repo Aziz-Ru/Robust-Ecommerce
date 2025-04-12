@@ -57,6 +57,7 @@ export class Product {
   images: ProductImage[];
 
   @ManyToMany(() => Category, (category) => category.products)
+  
   category: Category[];
 
   @OneToMany(() => Review, (review) => review.productId)
