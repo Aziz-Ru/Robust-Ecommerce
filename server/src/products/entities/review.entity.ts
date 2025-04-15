@@ -12,11 +12,10 @@ export class Review {
   @PrimaryGeneratedColumn('uuid')
   @Index()
   id: string;
-
   @Column({ type: 'text' })
   comment: string;
   @Column({ type: 'int' })
   rating: number;
   @ManyToOne(() => Product, (product) => product.reviews)
-  productId: string;
+  product: Product;
 }

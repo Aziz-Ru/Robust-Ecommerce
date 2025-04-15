@@ -1,8 +1,10 @@
-import { Category } from 'src/category/entities/category.entity';
+import { Category } from 'src/products/entities/category.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
+  JoinTable,
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -11,7 +13,7 @@ import { ProductImage } from './image.entity';
 import { Review } from './review.entity';
 import { ProductSize } from './size.entity';
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   @Index()
@@ -38,9 +40,6 @@ export class Product {
   @Column({ type: 'int', default: 10 })
   stockThreshold: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  image: string;
-
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 
@@ -50,16 +49,29 @@ export class Product {
   @Column({ type: 'decimal', precision: 2, scale: 2, default: 0 })
   rating: number;
 
+  @CreateDateColumn()
+  createdAt: Date;
+
   @OneToMany(() => ProductSize, (size) => size.product)
   sizes: ProductSize[];
 
-  @OneToMany(() => ProductImage, (image) => image.productId)
+  @OneToMany(() => ProductImage, (image) => image.product)
   images: ProductImage[];
 
   @ManyToMany(() => Category, (category) => category.products)
-  
-  category: Category[];
+  @JoinTable({
+    name: 'product_categories',
+    joinColumn: {
+      name: 'productId',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'categorySlug',
+      referencedColumnName: 'slug',
+    },
+  })
+  categories: Category[];
 
-  @OneToMany(() => Review, (review) => review.productId)
+  @OneToMany(() => Review, (review) => review.product)
   reviews: Review[];
 }

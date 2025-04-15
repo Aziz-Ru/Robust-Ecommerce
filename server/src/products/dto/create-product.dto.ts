@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -5,9 +6,10 @@ import {
   IsNotEmpty,
   IsNumber,
   IsPositive,
+  IsString,
   IsUrl,
-  IsUUID,
   Length,
+  ValidateNested,
 } from 'class-validator';
 import { Size } from '../size-enum';
 
@@ -40,9 +42,9 @@ export class CreateProductDto {
   stock: number;
 
   @IsArray()
-  @ArrayNotEmpty()
-  @IsEnum(Size, { each: true })
-  sizes: Size[];
+  @ValidateNested({ each: true })
+  @Type(() => ProductSizeDto)
+  sizes: ProductSizeDto[];
 
   @IsArray()
   @ArrayNotEmpty()
@@ -51,6 +53,20 @@ export class CreateProductDto {
 
   @IsArray()
   @ArrayNotEmpty()
-  @IsUUID('4', { each: true })
-  category: string[];
+  @IsString({ each: true })
+  categories: string[];
+}
+
+export class ProductSizeDto {
+  @IsNotEmpty()
+  @IsEnum(Size, { each: true })
+  size: Size;
+
+  @IsNumber()
+  @IsPositive()
+  stock: number;
+
+  @IsNumber()
+  @IsPositive()
+  price: number;
 }

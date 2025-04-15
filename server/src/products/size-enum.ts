@@ -1,5 +1,4 @@
 export enum Size {
-  NONE = 'NONE',
   XS = 'XS',
   S = 'S',
   M = 'M',

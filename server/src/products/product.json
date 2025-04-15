@@ -1,0 +1,14 @@
+[
+  {
+    "name": "First Product",
+    "description": "This is the first description",
+    "price": 232.99,
+    "discount": 20,
+    "costPrice": 200,
+    "stockThreshold": 5,
+    "stock": 10,
+    "sizes": [{ "size": "XS", "stock": 4, "price": 200 }],
+    "images": ["https://docs.nestjs.com/techniques/validation"],
+    "category": ["food"]
+  }
+]

@@ -3,7 +3,6 @@ import {
   Column,
   Entity,
   Index,
-  JoinTable,
   ManyToMany,
   PrimaryColumn,
   Unique,
@@ -17,8 +16,6 @@ export class Category {
   slug: string;
   @Column({ type: 'varchar', length: 255 })
   name: string;
-
-  @ManyToMany(() => Product, (product) => product.category)
-  @JoinTable()
+  @ManyToMany(() => Product, (product) => product.categories)
   products: Product[];
 }

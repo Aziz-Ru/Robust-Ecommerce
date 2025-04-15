@@ -6,11 +6,12 @@ import {
   Param,
   Patch,
   Post,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductImageService } from './image/image.service';
+import { ProductsSizeServices } from './products-size.service';
 import { ProductsService } from './products.service';
 
 /**{
@@ -23,12 +24,24 @@ import { ProductsService } from './products.service';
   version: '1',
 })
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly productsSizeService: ProductsSizeServices,
+    private readonly productsImageService: ProductImageService,
+  ) {}
 
   @Post()
-  @UsePipes(ValidationPipe)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  async create(@Body(ValidationPipe) createProductDto: CreateProductDto) {
+    const newProduct = await this.productsService.create(createProductDto);
+    await this.productsSizeService.create(
+      createProductDto.sizes,
+      newProduct.id,
+    );
+    await this.productsImageService.uploadImage(
+      createProductDto.images,
+      newProduct.id,
+    );
+    return { msg: 'Product Created Successfully' };
   }
 
   @Get()
@@ -38,7 +51,7 @@ export class ProductsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+    return this.productsService.findOne(id);
   }
 
   @Patch(':id')
