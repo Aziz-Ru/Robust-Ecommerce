@@ -3,7 +3,10 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   ValidationPipe,
@@ -31,6 +34,7 @@ export class ProductsController {
   ) {}
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async create(@Body(ValidationPipe) createProductDto: CreateProductDto) {
     const newProduct = await this.productsService.create(createProductDto);
     await this.productsSizeService.create(
@@ -41,22 +45,42 @@ export class ProductsController {
       createProductDto.images,
       newProduct.id,
     );
-    return { msg: 'Product Created Successfully' };
+    return {
+      statusCode: HttpStatus.CREATED,
+      msg: 'Product Created Successfully',
+      data: {
+        id: newProduct.id,
+      },
+    };
   }
 
   @Get()
-  findAll() {
-    return this.productsService.findProductForCustomer();
+  async findAll() {
+    const products = await this.productsService.findAll();
+    return {
+      statusCode: HttpStatus.OK,
+      msg: 'Products fetched successfully',
+      data: products,
+    };
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    const product = await this.productsService.findOne(id);
+
+    return {
+      statusCode: HttpStatus.OK,
+      msg: 'Product fetched successfully',
+      data: product,
+    };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(+id, updateProductDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateProductDto: UpdateProductDto,
+  ) {
+    return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')

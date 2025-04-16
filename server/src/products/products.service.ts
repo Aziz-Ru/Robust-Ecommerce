@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -18,27 +23,32 @@ export class ProductsService {
     private categoryRepo: Repository<Category>,
   ) {}
   async create(createProductDto: CreateProductDto) {
-    const categories = await this.categoryRepo.find({
-      where: {
-        slug: In(createProductDto.categories),
-      },
-    });
+    try {
+      const categories = await this.categoryRepo.find({
+        where: {
+          slug: In(createProductDto.categories),
+        },
+      });
 
-    const newProduct = this.productRepo.create({
-      name: createProductDto.name,
-      description: createProductDto.description,
-      price: createProductDto.price,
-      discount: createProductDto.discount,
-      costPrice: createProductDto.costPrice,
-      stock: createProductDto.stock,
-      stockThreshold: createProductDto.stockThreshold,
-      isActive: true,
-      totalSold: 0,
-      rating: 0.0,
-      categories: categories,
-    });
+      const newProduct = this.productRepo.create({
+        name: createProductDto.name,
+        description: createProductDto.description,
+        price: createProductDto.price,
+        discount: createProductDto.discount,
+        costPrice: createProductDto.costPrice,
+        stock: createProductDto.stock,
+        stockThreshold: createProductDto.stockThreshold,
+        isActive: true,
+        totalSold: 0,
+        rating: 0.0,
+        categories: categories,
+      });
 
-    return await this.productRepo.save(newProduct);
+      return await this.productRepo.save(newProduct);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      throw new InternalServerErrorException('Error creating product');
+    }
   }
 
   findAll() {
@@ -63,14 +73,45 @@ export class ProductsService {
         reviews: true,
       },
     });
+
+    if (!product) {
+      throw new NotFoundException({
+        msg: 'Product not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
     return product;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    try {
+      const res = await this.productRepo.update(
+        {
+          id,
+        },
+        {
+          price: updateProductDto.price,
+          discount: updateProductDto.discount,
+          costPrice: updateProductDto.costPrice,
+          stock: updateProductDto.stock,
+          stockThreshold: updateProductDto.stockThreshold,
+          isActive: updateProductDto.isActive,
+          name: updateProductDto.name,
+          description: updateProductDto.description,
+        },
+      );
+      if (res.affected === 0) {
+        throw new InternalServerErrorException('Product not found');
+      }
+      return;
+    } catch (error) {
+      console.log(error);
+      throw new InternalServerErrorException('Error updating product');
+    }
   }
 
   remove(id: number) {
-    return `This action removes a #${id} product`;
+    this.productRepo.delete(id);
+    return { msg: 'Product Deleted Successfully' };
   }
 }

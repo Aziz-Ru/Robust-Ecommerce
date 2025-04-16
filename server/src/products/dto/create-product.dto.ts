@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -40,6 +41,9 @@ export class CreateProductDto {
   @IsNumber()
   @IsPositive()
   stock: number;
+
+  @IsBoolean()
+  isActive: boolean;
 
   @IsArray()
   @ValidateNested({ each: true })
