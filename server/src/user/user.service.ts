@@ -1,31 +1,26 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './entities/user.entity';
+import { Users } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private userRepo: Repository<User>,
+    @InjectRepository(Users)
+    private userRepo: Repository<Users>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existingUser = await this.userRepo.findOne({
-      where: { username: createUserDto.username },
-    });
-    console.log(existingUser);
-    if (existingUser) {
-      throw new BadRequestException('User already exists');
-    }
-    const newUser = this.userRepo.create({
-      username: createUserDto.username,
+    const user = this.userRepo.create({
+      email: createUserDto.email,
+      name: createUserDto.name,
       password: createUserDto.password,
+      authStrategy: createUserDto.authStrategy,
+      image: createUserDto.imageUrl,
     });
-    const savingUser = await this.userRepo.save(newUser);
-    return savingUser;
+    return await this.userRepo.save(user);
   }
 
   findAll() {
@@ -34,6 +29,14 @@ export class UserService {
 
   findOne(id: number) {
     return `This action returns a #${id} user`;
+  }
+
+  async findByEmail(email: string) {
+    return await this.userRepo.findOne({
+      where: {
+        email,
+      },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

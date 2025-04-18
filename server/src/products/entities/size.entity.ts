@@ -9,6 +9,8 @@ export class ProductSize {
   size: string;
   @Column({ type: 'int', default: 0 })
   stock: number;
-  @ManyToOne(() => Product, (product) => product.sizes)
+  @ManyToOne(() => Product, (product) => product.sizes, {
+    onDelete: 'CASCADE',
+  })
   product: Product;
 }

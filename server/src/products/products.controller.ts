@@ -76,15 +76,18 @@ export class ProductsController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return this.productsService.update(id, updateProductDto);
+    await this.productsService.update(id, updateProductDto);
+    return { msg: 'Product updated successfully', statusCode: HttpStatus.OK };
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.productsService.remove(id);
+
+    return { msg: 'Product deleted successfully', statusCode: HttpStatus.OK };
   }
 }

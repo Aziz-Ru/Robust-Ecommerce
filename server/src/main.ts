@@ -4,9 +4,11 @@ import { AppModule } from './app.module';
 // v1/product
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
   });
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

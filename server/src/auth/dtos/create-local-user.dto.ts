@@ -6,8 +6,9 @@ import {
   IsUrl,
   Length,
 } from 'class-validator';
+import { AuthStragety } from '../utils/authStrategy';
 
-export class CreateUserDto {
+export class CreateLocalUserDto {
   @IsString()
   @Length(1, 255)
   name: string;
@@ -17,11 +18,11 @@ export class CreateUserDto {
   email: string;
 
   @IsString()
-  @IsOptional()
+  @Length(6, 63)
   password: string;
 
-  @IsEnum(['GOOGLE', 'LOCAL'])
-  authStrategy: string;
+  @IsEnum(AuthStragety)
+  authStrategy: AuthStragety;
 
   @IsUrl()
   @IsOptional()

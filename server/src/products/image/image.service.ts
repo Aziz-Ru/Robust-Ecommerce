@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductImage } from '../entities/image.entity';
@@ -19,14 +19,22 @@ export class ProductImageService {
         },
       });
     });
-
     await this.imageRepo.save(otherImages);
 
     return;
   }
 
-  // async deleteImage(imageUrl: string): Promise<void> {
-  //   // Simulate an image deletion process
-  //   // In a real application, you would delete the image from the cloud storage service.
-  // }
+  async deleteImage(id: string): Promise<void> {
+    const result = await this.imageRepo.delete({
+      id,
+    });
+
+    if (result.affected == 0) {
+      throw new NotFoundException({
+        statusCode: 404,
+        msg: 'Image not found',
+      });
+    }
+    return;
+  }
 }

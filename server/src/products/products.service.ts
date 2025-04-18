@@ -47,16 +47,16 @@ export class ProductsService {
       return await this.productRepo.save(newProduct);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new InternalServerErrorException('Error creating product');
+      throw new InternalServerErrorException({
+        msg: 'Error creating product',
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+      });
     }
   }
 
-  findAll() {
-    return this.productRepo.find({
-      where: {
-        price: 200,
-      },
-    });
+  async findAll() {
+    const products = await this.productRepo.find({});
+    return products;
   }
   findProductForCustomer() {
     return this.productRepo.find();
@@ -80,6 +80,7 @@ export class ProductsService {
         statusCode: HttpStatus.NOT_FOUND,
       });
     }
+
     return product;
   }
 
@@ -101,7 +102,7 @@ export class ProductsService {
         },
       );
       if (res.affected === 0) {
-        throw new InternalServerErrorException('Product not found');
+        throw new NotFoundException('Product not found');
       }
       return;
     } catch (error) {
@@ -110,8 +111,16 @@ export class ProductsService {
     }
   }
 
-  remove(id: number) {
-    this.productRepo.delete(id);
-    return { msg: 'Product Deleted Successfully' };
+  async remove(id: string) {
+    const res = await this.productRepo.delete({
+      id,
+    });
+    if (res.affected == 0) {
+      throw new NotFoundException({
+        msg: 'Product not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
+    return;
   }
 }

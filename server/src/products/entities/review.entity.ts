@@ -16,6 +16,8 @@ export class Review {
   comment: string;
   @Column({ type: 'int' })
   rating: number;
-  @ManyToOne(() => Product, (product) => product.reviews)
+  @ManyToOne(() => Product, (product) => product.reviews, {
+    onDelete: 'CASCADE',
+  })
   product: Product;
 }
