@@ -6,7 +6,7 @@ import {
   IsUrl,
   Length,
 } from 'class-validator';
-import { AuthStragety } from '../utils/authStrategy';
+import { AuthStragety } from '../strategies/authStrategy';
 
 export class CreateLocalUserDto {
   @IsString()
