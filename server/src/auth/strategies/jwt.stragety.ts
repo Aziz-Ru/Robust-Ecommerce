@@ -9,6 +9,7 @@ import JwtConfig from '../config/Jwt.config';
 interface JwtPayload {
   sub: string;
   email: string;
+  role: string;
 }
 @Injectable()
 export class JwtStragety extends PassportStrategy(Strategy) {
@@ -25,6 +26,6 @@ export class JwtStragety extends PassportStrategy(Strategy) {
   }
   // This is where you control what gets attached to req.user
   validate(payload: JwtPayload) {
-    return { id: payload.sub, email: payload.email };
+    return { id: payload.sub, email: payload.email, role: payload.role };
   }
 }

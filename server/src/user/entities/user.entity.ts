@@ -1,4 +1,5 @@
 import { hash } from 'bcrypt';
+import { Role } from 'src/auth/enums/role.enum';
 import {
   BeforeInsert,
   Column,
@@ -38,6 +39,8 @@ export class Users {
   @Column({ type: 'varchar', length: 255, nullable: true })
   image: string;
 
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
   @OneToOne(() => Accounts, (account) => account.user)
   account: Accounts;
 

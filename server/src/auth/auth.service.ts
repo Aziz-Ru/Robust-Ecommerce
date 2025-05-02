@@ -13,6 +13,13 @@ import { SessionService } from 'src/user/session.service';
 import { UserService } from 'src/user/user.service';
 import { CreateLocalUserDto } from './dtos/create-local-user.dto';
 import { LocalUserSignInDto } from './dtos/signin-local-user.dto';
+
+export interface UserPayload {
+  id: string;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -65,18 +72,17 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      role: user.role,
     };
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, id: user.id };
-
+  async login(payload: UserPayload) {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload),
       this.jwtService.signAsync(payload, this.refreshJwtConfig),
     ]);
     const hashedRefreshedToken = await argon.hash(refresh_token);
-    await this.sessionService.createSession(hashedRefreshedToken, user.id);
+    await this.sessionService.createSession(hashedRefreshedToken, payload.id);
     // Save the refresh token in the database
     return {
       access_token,
@@ -84,15 +90,15 @@ export class AuthService {
     };
   }
 
-  async refreshToken(email: string, id: string) {
+  async refreshToken(payload: UserPayload) {
     const [access_token, refresh_token] = await Promise.all([
-      this.jwtService.signAsync({ email, id }),
-      this.jwtService.signAsync({ email, id }, this.refreshJwtConfig),
+      this.jwtService.signAsync(payload),
+      this.jwtService.signAsync(payload, this.refreshJwtConfig),
     ]);
     const hashedRefreshedToken = await argon.hash(refresh_token);
-    await this.sessionService.deleteToken(id);
+    await this.sessionService.deleteToken(payload.id);
     // Delete the old session token
-    await this.sessionService.createSession(hashedRefreshedToken, id);
+    await this.sessionService.createSession(hashedRefreshedToken, payload.id);
     // Save the refresh token in the database
     return {
       access_token,
@@ -100,8 +106,10 @@ export class AuthService {
     };
   }
 
-  async validateRefreshToken(token: string, userId: string, email: string) {
-    const session = await this.sessionService.findSessionTokenionToken(userId);
+  async validateRefreshToken(token: string, payload: UserPayload) {
+    const session = await this.sessionService.findSessionTokenionToken(
+      payload.id,
+    );
 
     if (!session) {
       throw new UnauthorizedException({
@@ -116,7 +124,7 @@ export class AuthService {
         statusCode: HttpStatus.UNAUTHORIZED,
       });
     }
-    return { id: userId, email };
+    return payload;
   }
 
   async logout(userId: string) {

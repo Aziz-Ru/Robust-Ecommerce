@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Req,
   Request,
   UseGuards,
   ValidationPipe,
@@ -37,8 +38,10 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('local/login')
-  async localLogin(@Request() req) {
+  async localLogin(@Req() req) {
+    // console.log(req.user);
     const token = await this.authService.login(req.user);
+
     return {
       msg: 'Login successful',
       statusCode: 200,
@@ -57,10 +60,9 @@ export class AuthController {
   @UseGuards(RefreshJwtAuthGuard)
   @Post('local/refresh')
   async refreshToken(@Request() req) {
-    const { email, id } = req.user;
+    const { email, id, role } = req.user;
     const { access_token, refresh_token } = await this.authService.refreshToken(
-      email,
-      id,
+      { email, id, role },
     );
     return {
       msg: 'access token refreshed successfully',

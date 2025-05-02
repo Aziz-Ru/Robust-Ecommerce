@@ -8,12 +8,14 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { Roles } from 'src/auth/decreators/roles.decreator';
+import { Role } from 'src/auth/enums/role.enum';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
 @Controller({
-  path: 'users',
+  path: 'u',
   version: '1',
 })
 export class UserController {
@@ -35,8 +37,10 @@ export class UserController {
     return this.userService.update(+id, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Roles(Role.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return { msg: 'user dlees', id };
   }
 }
