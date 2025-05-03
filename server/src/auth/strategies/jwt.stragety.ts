@@ -7,7 +7,7 @@ import JwtConfig from '../config/Jwt.config';
 // extract the payload from the JWT token
 // and validate it
 interface JwtPayload {
-  sub: string;
+  id: string;
   email: string;
   role: string;
 }
@@ -25,7 +25,8 @@ export class JwtStragety extends PassportStrategy(Strategy) {
     });
   }
   // This is where you control what gets attached to req.user
+
   validate(payload: JwtPayload) {
-    return { id: payload.sub, email: payload.email, role: payload.role };
+    return { id: payload.id, role: payload.role };
   }
 }

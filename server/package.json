@@ -2,7 +2,7 @@
   "name": "server",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Abdul Aziz",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -38,6 +38,8 @@
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
+    "fix-esm": "^1.0.1",
+    "nanoid": "^5.1.5",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",

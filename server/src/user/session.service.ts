@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
+import { CreateSessionDto } from './dto/create-session.dto';
 import { Sessions } from './entities/session.entity';
 
 @Injectable()
@@ -10,34 +11,27 @@ export class SessionService {
     private sessionRepo: Repository<Sessions>,
   ) {}
 
-  async createSession(token: string, userId: string) {
+  async createSession(createSessionDto: CreateSessionDto) {
     const session = this.sessionRepo.create({
-      sessionToken: token,
+      id: createSessionDto.id,
+      session: createSessionDto.session,
       user: {
-        id: userId,
+        id: createSessionDto.userId,
       },
-      expires: new Date(Date.now() + 7 * 24 * 3600 * 1000),
     });
+    //expires: new Date(Date.now() + 7 * 24 * 3600 * 1000),
     return await this.sessionRepo.save(session);
   }
-  async findSessionTokenionToken(userId: string) {
+  async findSessionTokenionToken(id: string) {
     return await this.sessionRepo.findOne({
       where: {
-        user: {
-          id: userId,
-        },
-        expires: MoreThan(new Date()),
+        id,
       },
     });
   }
-  async deleteToken(userId: string) {
-    const sessions = await this.sessionRepo.find({
-      where: {
-        user: {
-          id: userId,
-        },
-      },
-    });
-    return await this.sessionRepo.remove(sessions);
+  async deleteToken(id: string) {
+    await this.sessionRepo.delete({ id });
+
+    return;
   }
 }

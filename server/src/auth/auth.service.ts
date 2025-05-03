@@ -13,10 +13,16 @@ import { SessionService } from 'src/user/session.service';
 import { UserService } from 'src/user/user.service';
 import { CreateLocalUserDto } from './dtos/create-local-user.dto';
 import { LocalUserSignInDto } from './dtos/signin-local-user.dto';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { nanoid } = require('fix-esm').require('nanoid');
 
-export interface UserPayload {
+export interface AccessTokenPayload {
   id: string;
-  email: string;
+  role: string;
+}
+export interface RefreshTokenPayload {
+  session_id: string;
+  user_id: string;
   role: string;
 }
 
@@ -71,45 +77,70 @@ export class AuthService {
     }
     return {
       id: user.id,
-      email: user.email,
       role: user.role,
     };
   }
 
-  async login(payload: UserPayload) {
+  async generateTokens(payload: any, sessionId: string) {
     const [access_token, refresh_token] = await Promise.all([
       this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, this.refreshJwtConfig),
+      this.jwtService.signAsync(
+        { ...payload, session_id: sessionId },
+        this.refreshJwtConfig,
+      ),
     ]);
-    const hashedRefreshedToken = await argon.hash(refresh_token);
-    await this.sessionService.createSession(hashedRefreshedToken, payload.id);
-    // Save the refresh token in the database
     return {
       access_token,
       refresh_token,
     };
   }
 
-  async refreshToken(payload: UserPayload) {
-    const [access_token, refresh_token] = await Promise.all([
-      this.jwtService.signAsync(payload),
-      this.jwtService.signAsync(payload, this.refreshJwtConfig),
-    ]);
-    const hashedRefreshedToken = await argon.hash(refresh_token);
-    await this.sessionService.deleteToken(payload.id);
-    // Delete the old session token
-    await this.sessionService.createSession(hashedRefreshedToken, payload.id);
-    // Save the refresh token in the database
-    return {
-      access_token,
-      refresh_token,
-    };
-  }
-
-  async validateRefreshToken(token: string, payload: UserPayload) {
-    const session = await this.sessionService.findSessionTokenionToken(
-      payload.id,
+  async login(payload: AccessTokenPayload) {
+    const sessionId = nanoid();
+    const { access_token, refresh_token } = await this.generateTokens(
+      payload,
+      sessionId,
     );
+    const hashedRefreshedToken = await argon.hash(refresh_token);
+    await this.sessionService.createSession({
+      session: hashedRefreshedToken,
+      id: sessionId,
+      userId: payload.id,
+    });
+    // Save the refresh token in the database
+    return {
+      access_token,
+      refresh_token,
+    };
+  }
+
+  async refreshToken(payload: RefreshTokenPayload) {
+    const sessionId = nanoid();
+    const { access_token, refresh_token } = await this.generateTokens(
+      payload,
+      sessionId,
+    );
+
+    const hashedRefreshedToken = await argon.hash(refresh_token);
+    await this.sessionService.deleteToken(payload.session_id);
+    // Delete the old session token
+    await this.sessionService.createSession({
+      session: hashedRefreshedToken,
+      id: sessionId,
+      userId: payload.user_id,
+    });
+    // Save the refresh token in the database
+    return {
+      access_token,
+      refresh_token,
+    };
+  }
+
+  async validateRefreshToken(payload: RefreshTokenPayload, token: string) {
+    const session = await this.sessionService.findSessionTokenionToken(
+      payload.session_id,
+    );
+    console.log(session);
 
     if (!session) {
       throw new UnauthorizedException({
@@ -117,18 +148,21 @@ export class AuthService {
         statusCode: HttpStatus.UNAUTHORIZED,
       });
     }
-    const isValid = await argon.verify(session.sessionToken, token);
+
+    const isValid = await argon.verify(session.session, token);
+
     if (!isValid) {
       throw new UnauthorizedException({
         msg: 'unauthorized',
         statusCode: HttpStatus.UNAUTHORIZED,
       });
     }
+
     return payload;
   }
 
-  async logout(userId: string) {
-    await this.sessionService.deleteToken(userId);
+  async logout(sessionId: string) {
+    await this.sessionService.deleteToken(sessionId);
     return {
       msg: 'Logout successful',
       statusCode: HttpStatus.OK,

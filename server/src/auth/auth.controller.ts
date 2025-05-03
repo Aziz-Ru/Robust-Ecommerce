@@ -60,9 +60,9 @@ export class AuthController {
   @UseGuards(RefreshJwtAuthGuard)
   @Post('local/refresh')
   async refreshToken(@Request() req) {
-    const { email, id, role } = req.user;
+    const { user_id, role, session_id } = req.user;
     const { access_token, refresh_token } = await this.authService.refreshToken(
-      { email, id, role },
+      { user_id, role, session_id },
     );
     return {
       msg: 'access token refreshed successfully',
