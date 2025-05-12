@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   Post,
   Req,
   Request,
@@ -9,12 +8,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Public } from 'src/decreators/public.decorator';
+import { LocalAuthGuard } from 'src/guard/local-auth.guard';
+import { RefreshJwtAuthGuard } from '../guard/refresh_jwt.guard';
 import { AuthService } from './auth.service';
 import { CreateLocalUserDto } from './dtos/create-local-user.dto';
-import { GoogleAuthGuard } from './guard/google-auth.guard';
-import { JwtAuthGuard } from './guard/jwt.guard';
-import { LocalAuthGuard } from './guard/local-auth.guard';
-import { RefreshJwtAuthGuard } from './guard/refresh_jwt.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -22,24 +20,19 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
-
-  @Get('google/login')
-  @UseGuards(GoogleAuthGuard)
-  async googleLogin() {
-    console.log(this.configService.get('GOOGLE_CLIENT_ID'));
-    return { msg: 'Redirecting to Google for login' };
-  }
-  @UseGuards(GoogleAuthGuard)
-  @Get('google/redirect')
-  async googleRedirect() {
-    console.log('Google login redirect');
-    return { msg: 'Google login successful' };
-  }
-
+  /**
+   * Logs in a user using the local strategy (email & password).
+   *
+   * This route is public and protected by the LocalAuthGuard which authenticates
+   * the user before allowing access to this handler. On success, JWT tokens are returned.
+   *
+   * @param req - The request object containing authenticated user info (from LocalAuthGuard).
+   * @returns An object containing the access token and refresh token.
+   */
+  @Public()
   @UseGuards(LocalAuthGuard)
   @Post('local/login')
   async localLogin(@Req() req) {
-    // console.log(req.user);
     const token = await this.authService.login(req.user);
 
     return {
@@ -50,13 +43,33 @@ export class AuthController {
     };
   }
 
+  /**
+   * Registers a new user using the local strategy (email & password).
+   *
+   * This route is public and allows users to create an account.
+   *
+   * @param createlocalUserDto - The DTO containing user registration data.
+   * @returns A message indicating successful registration.
+   */
+  @Public()
   @Post('local/register')
-  async localSignup(
+  async localRegister(
     @Body(ValidationPipe) createlocalUserDto: CreateLocalUserDto,
   ) {
     return await this.authService.createLocalUser(createlocalUserDto);
   }
 
+  /**
+   * Refreshes JWT access and refresh tokens.
+   *
+   * Protected by the RefreshJwtAuthGuard and requires a valid refresh token.
+   * Roles allowed: ADMIN, USER.
+   *
+   * @param req - The request object containing user session info.
+   * @returns New access and refresh tokens.
+   */
+  @Public()
+  // @Roles(Role.ADMIN, Role.USER)
   @UseGuards(RefreshJwtAuthGuard)
   @Post('local/refresh')
   async refreshToken(@Request() req) {
@@ -71,7 +84,16 @@ export class AuthController {
       refresh_token,
     };
   }
-  @UseGuards(JwtAuthGuard)
+  /**
+   * Logs out a user by invalidating their session.
+   *
+   * Protected by the JwtAuthGuard and requires a valid JWT token.
+   * Roles allowed: ADMIN, USER.
+   *
+   * @param req - The request object containing user info.
+   * @returns A message indicating successful logout.
+   */
+
   @Post('local/logout')
   async logout(@Request() req) {
     const { id } = req.user;
@@ -90,3 +112,16 @@ export class AuthController {
  * Inside localLogin():
  * req.user is already populated with the validated user data.
  */
+
+// @Get('google/login')
+// @UseGuards(GoogleAuthGuard)
+// async googleLogin() {
+//   console.log(this.configService.get('GOOGLE_CLIENT_ID'));
+//   return { msg: 'Redirecting to Google for login' };
+// }
+// @UseGuards(GoogleAuthGuard)
+// @Get('google/redirect')
+// async googleRedirect() {
+//   console.log('Google login redirect');
+//   return { msg: 'Google login successful' };
+// }

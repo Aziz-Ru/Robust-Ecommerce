@@ -6,7 +6,7 @@ import {
   IsUrl,
   Length,
 } from 'class-validator';
-import { AuthStragety } from '../enums/auth.enum';
+import { AuthStragety } from '../../enums/auth.enum';
 
 export class CreateLocalUserDto {
   @IsString()

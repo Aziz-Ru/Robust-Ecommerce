@@ -11,6 +11,9 @@ import {
   Post,
   ValidationPipe,
 } from '@nestjs/common';
+import { Public } from 'src/decreators/public.decorator';
+import { Roles } from 'src/decreators/roles.decreator';
+import { Role } from 'src/enums/role.enum';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ProductImageService } from './image/image.service';
@@ -33,6 +36,7 @@ export class ProductsController {
     private readonly productsImageService: ProductImageService,
   ) {}
 
+  @Roles(Role.ADMIN)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body(ValidationPipe) createProductDto: CreateProductDto) {
@@ -54,6 +58,7 @@ export class ProductsController {
     };
   }
 
+  @Public()
   @Get()
   async findAll() {
     const products = await this.productsService.findAll();
@@ -64,6 +69,7 @@ export class ProductsController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
     const product = await this.productsService.findOne(id);
@@ -75,6 +81,7 @@ export class ProductsController {
     };
   }
 
+  @Roles(Role.ADMIN)
   @Patch(':id')
   async update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -84,6 +91,7 @@ export class ProductsController {
     return { msg: 'Product updated successfully', statusCode: HttpStatus.OK };
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   async remove(@Param('id', ParseUUIDPipe) id: string) {
     await this.productsService.remove(id);

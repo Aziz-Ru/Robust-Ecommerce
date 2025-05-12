@@ -39,6 +39,7 @@ export class ProductsService {
         stock: createProductDto.stock,
         stockThreshold: createProductDto.stockThreshold,
         isActive: true,
+        weight: createProductDto.weight,
         totalSold: 0,
         rating: 0.0,
         categories: categories,

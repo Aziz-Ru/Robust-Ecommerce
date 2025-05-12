@@ -1,5 +1,5 @@
 import { hash } from 'bcrypt';
-import { Role } from 'src/auth/enums/role.enum';
+import { Role } from 'src/enums/role.enum';
 import {
   BeforeInsert,
   Column,

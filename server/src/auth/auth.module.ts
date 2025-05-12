@@ -29,6 +29,7 @@ import { RefresJwtStragety } from './strategies/refresh_token.strategy';
     JwtModule.registerAsync(JwtConfig.asProvider()),
     JwtModule.registerAsync(RefreshJwtConfig.asProvider()),
     UserModule,
+    
   ],
   controllers: [AuthController],
   providers: [
@@ -37,6 +38,7 @@ import { RefresJwtStragety } from './strategies/refresh_token.strategy';
     AuthService,
     JwtStragety,
     RefresJwtStragety,
+    
   ],
 })
 export class AuthModule {}

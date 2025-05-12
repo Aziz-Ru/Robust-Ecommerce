@@ -8,10 +8,10 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { Roles } from 'src/auth/decreators/roles.decreator';
-import { Role } from 'src/auth/enums/role.enum';
-import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
-import { RolesGuard } from 'src/auth/guard/roles.guard';
+import { Roles } from 'src/decreators/roles.decreator';
+import { Role } from 'src/enums/role.enum';
+import { JwtAuthGuard } from 'src/guard/jwt.guard';
+import { RolesGuard } from 'src/guard/roles.guard';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserService } from './user.service';
 
@@ -37,7 +37,7 @@ export class UserController {
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
-  @Roles(Role.ADMIN, Role.USER)
+  @Roles(Role.USER)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {

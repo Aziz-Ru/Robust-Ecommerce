@@ -6,6 +6,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   IsUrl,
@@ -41,6 +42,11 @@ export class CreateProductDto {
   @IsNumber()
   @IsPositive()
   stock: number;
+
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  weight: number;
 
   @IsBoolean()
   isActive: boolean;

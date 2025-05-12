@@ -45,6 +45,7 @@ export class AuthService {
   }
 
   async createLocalUser(createLocalUserDto: CreateLocalUserDto) {
+    console.log(createLocalUserDto);
     const user = await this.userService.findByEmail(createLocalUserDto.email);
     if (user) {
       throw new UnauthorizedException({
@@ -140,7 +141,6 @@ export class AuthService {
     const session = await this.sessionService.findSessionTokenionToken(
       payload.session_id,
     );
-    console.log(session);
 
     if (!session) {
       throw new UnauthorizedException({

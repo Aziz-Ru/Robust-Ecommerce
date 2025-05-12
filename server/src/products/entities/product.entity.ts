@@ -13,6 +13,7 @@ import { ProductImage } from './image.entity';
 import { Review } from './review.entity';
 import { ProductSize } from './size.entity';
 
+//
 @Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
@@ -27,9 +28,6 @@ export class Product {
 
   @Column({ type: 'decimal', precision: 5, scale: 2 })
   price: number;
-
-  @Column({ type: 'int', default: 0 })
-  discount: number;
 
   @Column({ type: 'decimal', precision: 5, scale: 2, nullable: true })
   costPrice: number;
@@ -48,6 +46,16 @@ export class Product {
 
   @Column({ type: 'decimal', precision: 2, scale: 2, default: 0 })
   rating: number;
+
+  @Column({ type: 'int', default: 0 })
+  totalReviews: number;
+
+  @Column({ type: 'int', default: 0 })
+  discount: number;
+
+  @Column({ type: 'int', nullable: true })
+  weight: number;
+
 
   @CreateDateColumn()
   createdAt: Date;
